@@ -15,7 +15,9 @@ setup(
         'seaborn',
         'torch',
         'medmnist',
-        'torchbnn'
+        'torchbnn',
+        'onnx',
+        'fastapi'
     ],
     python_requires='>=3.11',
 )

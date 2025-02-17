@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../node_modules/vidstack/dev/chunks/vidstack-Bpr4fI4n.js"],
+  "sourcesContent": ["const SET_AUTO = Symbol(\"SET_AUTO_QUALITY\" ), ENABLE_AUTO = Symbol(\"ENABLE_AUTO_QUALITY\" );\nconst QualitySymbol = {\n  setAuto: SET_AUTO,\n  enableAuto: ENABLE_AUTO\n};\n\nexport { QualitySymbol };\n"],
+  "mappings": ";AAAA,IAAM,WAAW,OAAO,kBAAmB;AAA3C,IAA8C,cAAc,OAAO,qBAAsB;AACzF,IAAM,gBAAgB;AAAA,EACpB,SAAS;AAAA,EACT,YAAY;AACd;",
+  "names": []
+}

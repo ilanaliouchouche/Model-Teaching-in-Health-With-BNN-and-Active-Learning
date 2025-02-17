@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../node_modules/vidstack/dev/chunks/vidstack-DbBJlz7I.js"],
+  "sourcesContent": ["function coerceToError(error) {\n  return error instanceof Error ? error : Error(typeof error === \"string\" ? error : JSON.stringify(error));\n}\nfunction assert(condition, message) {\n  if (!condition) {\n    throw Error(message || \"Assertion failed.\");\n  }\n}\n\nexport { assert, coerceToError };\n"],
+  "mappings": ";AAAA,SAAS,cAAc,OAAO;AAC5B,SAAO,iBAAiB,QAAQ,QAAQ,MAAM,OAAO,UAAU,WAAW,QAAQ,KAAK,UAAU,KAAK,CAAC;AACzG;AACA,SAAS,OAAO,WAAW,SAAS;AAClC,MAAI,CAAC,WAAW;AACd,UAAM,MAAM,WAAW,mBAAmB;AAAA,EAC5C;AACF;",
+  "names": []
+}

@@ -1,0 +1,110 @@
+{
+  "hash": "aa8b8df7",
+  "browserHash": "0d653ea6",
+  "optimized": {
+    "@marcellejs/core": {
+      "src": "../../node_modules/@marcellejs/core/dist/marcelle.esm.js",
+      "file": "@marcellejs_core.js",
+      "fileHash": "60b9b7af",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "vidstack-dash-7VNLNSUJ": {
+      "file": "vidstack-dash-7VNLNSUJ.js"
+    },
+    "vidstack-krOAtKMi-XRGAFJB7": {
+      "file": "vidstack-krOAtKMi-XRGAFJB7.js"
+    },
+    "vidstack-vimeo-OF2TQD5N": {
+      "file": "vidstack-vimeo-OF2TQD5N.js"
+    },
+    "chunk-UBIOYAPV": {
+      "file": "chunk-UBIOYAPV.js"
+    },
+    "vidstack-Zc3I7oOd-H7D7XT3M": {
+      "file": "vidstack-Zc3I7oOd-H7D7XT3M.js"
+    },
+    "vidstack-youtube-GQ4STQSL": {
+      "file": "vidstack-youtube-GQ4STQSL.js"
+    },
+    "chunk-OZDDBEUX": {
+      "file": "chunk-OZDDBEUX.js"
+    },
+    "chunk-ZYXCBPRH": {
+      "file": "chunk-ZYXCBPRH.js"
+    },
+    "vidstack-google-cast-GJ37NAVK": {
+      "file": "vidstack-google-cast-GJ37NAVK.js"
+    },
+    "vidstack-Iukxkbbn-XVEDG64N": {
+      "file": "vidstack-Iukxkbbn-XVEDG64N.js"
+    },
+    "chunk-MAGUOO2H": {
+      "file": "chunk-MAGUOO2H.js"
+    },
+    "chunk-QGQ7KI2J": {
+      "file": "chunk-QGQ7KI2J.js"
+    },
+    "srt-parser-YKI2U6GH": {
+      "file": "srt-parser-YKI2U6GH.js"
+    },
+    "errors-ZY6PFLQ7": {
+      "file": "errors-ZY6PFLQ7.js"
+    },
+    "ssa-parser-6RMCKA7F": {
+      "file": "ssa-parser-6RMCKA7F.js"
+    },
+    "dev-6QCD6O3Z": {
+      "file": "dev-6QCD6O3Z.js"
+    },
+    "chunk-LQQENT2U": {
+      "file": "chunk-LQQENT2U.js"
+    },
+    "vidstack-audio-4W4FLUNH": {
+      "file": "vidstack-audio-4W4FLUNH.js"
+    },
+    "vidstack-video-RISLJ5HN": {
+      "file": "vidstack-video-RISLJ5HN.js"
+    },
+    "vidstack-hls-HIK7EFKC": {
+      "file": "vidstack-hls-HIK7EFKC.js"
+    },
+    "chunk-NQV4QZM3": {
+      "file": "chunk-NQV4QZM3.js"
+    },
+    "chunk-2WGAKHRH": {
+      "file": "chunk-2WGAKHRH.js"
+    },
+    "chunk-NU4KQMTP": {
+      "file": "chunk-NU4KQMTP.js"
+    },
+    "chunk-EBRHQEUP": {
+      "file": "chunk-EBRHQEUP.js"
+    },
+    "chunk-YNKQJVIZ": {
+      "file": "chunk-YNKQJVIZ.js"
+    },
+    "chunk-OSWRSLMA": {
+      "file": "chunk-OSWRSLMA.js"
+    },
+    "chunk-U2LFAP4F": {
+      "file": "chunk-U2LFAP4F.js"
+    },
+    "chunk-JLFET46Z": {
+      "file": "chunk-JLFET46Z.js"
+    },
+    "chunk-OPWJPTWG": {
+      "file": "chunk-OPWJPTWG.js"
+    },
+    "chunk-K2JGPOHG": {
+      "file": "chunk-K2JGPOHG.js"
+    },
+    "chunk-ZOOREORJ": {
+      "file": "chunk-ZOOREORJ.js"
+    },
+    "chunk-Q6BFB6C2": {
+      "file": "chunk-Q6BFB6C2.js"
+    }
+  }
+}

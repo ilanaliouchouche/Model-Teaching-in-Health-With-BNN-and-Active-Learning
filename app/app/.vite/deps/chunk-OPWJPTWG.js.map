@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../node_modules/vidstack/dev/chunks/vidstack-Dv_LIPFu.js"],
+  "sourcesContent": ["const ADD = Symbol(\"LIST_ADD\" ), REMOVE = Symbol(\"LIST_REMOVE\" ), RESET = Symbol(\"LIST_RESET\" ), SELECT = Symbol(\"LIST_SELECT\" ), READONLY = Symbol(\"LIST_READONLY\" ), SET_READONLY = Symbol(\"LIST_SET_READONLY\" ), ON_RESET = Symbol(\"LIST_ON_RESET\" ), ON_REMOVE = Symbol(\"LIST_ON_REMOVE\" ), ON_USER_SELECT = Symbol(\"LIST_ON_USER_SELECT\" );\nconst ListSymbol = {\n  add: ADD,\n  remove: REMOVE,\n  reset: RESET,\n  select: SELECT,\n  readonly: READONLY,\n  setReadonly: SET_READONLY,\n  onReset: ON_RESET,\n  onRemove: ON_REMOVE,\n  onUserSelect: ON_USER_SELECT\n};\n\nexport { ListSymbol };\n"],
+  "mappings": ";AAAA,IAAM,MAAM,OAAO,UAAW;AAA9B,IAAiC,SAAS,OAAO,aAAc;AAA/D,IAAkE,QAAQ,OAAO,YAAa;AAA9F,IAAiG,SAAS,OAAO,aAAc;AAA/H,IAAkI,WAAW,OAAO,eAAgB;AAApK,IAAuK,eAAe,OAAO,mBAAoB;AAAjN,IAAoN,WAAW,OAAO,eAAgB;AAAtP,IAAyP,YAAY,OAAO,gBAAiB;AAA7R,IAAgS,iBAAiB,OAAO,qBAAsB;AAC9U,IAAM,aAAa;AAAA,EACjB,KAAK;AAAA,EACL,QAAQ;AAAA,EACR,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,UAAU;AAAA,EACV,aAAa;AAAA,EACb,SAAS;AAAA,EACT,UAAU;AAAA,EACV,cAAc;AAChB;",
+  "names": []
+}

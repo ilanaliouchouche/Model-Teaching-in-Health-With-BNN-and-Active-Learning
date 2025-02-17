@@ -1,0 +1,31 @@
+{
+  "name": "app",
+  "description": "A Marcelle Application",
+  "version": "0.0.0",
+  "keywords": [
+    "marcelle"
+  ],
+  "main": "public/bundle.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@marcellejs/core": "^0.6.1"
+  },
+  "devDependencies": {
+    "@marcellejs/design-system": "^0.6.1",
+    "@marcellejs/devtools": "^0.6.1",
+    "@sveltejs/vite-plugin-svelte": "^2.0.3",
+    "eslint": "^8.24.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-prettier": "^4.1.0",
+    "eslint-plugin-svelte3": "^4.0.0",
+    "prettier": "^2.7.1",
+    "svelte": "^3.55.1",
+    "svelte-preprocess": "^5.0.1",
+    "vite": "^4.1.4"
+  }
+}

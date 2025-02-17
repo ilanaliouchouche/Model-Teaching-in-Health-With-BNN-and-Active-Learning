@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../node_modules/vidstack/dev/chunks/vidstack-HSkhaVtP.js"],
+  "sourcesContent": ["import { isUndefined, isNumber } from './vidstack-DVpy0IqK.js';\n\nclass RAFLoop {\n  #id;\n  #callback;\n  constructor(callback) {\n    this.#callback = callback;\n  }\n  start() {\n    if (!isUndefined(this.#id)) return;\n    this.#loop();\n  }\n  stop() {\n    if (isNumber(this.#id)) window.cancelAnimationFrame(this.#id);\n    this.#id = void 0;\n  }\n  #loop() {\n    this.#id = window.requestAnimationFrame(() => {\n      if (isUndefined(this.#id)) return;\n      this.#callback();\n      this.#loop();\n    });\n  }\n}\n\nexport { RAFLoop };\n"],
+  "mappings": ";;;;;;;;;;;;AAAA;AAEA,IAAM,UAAN,MAAc;AAAA,EAGZ,YAAY,UAAU;AAWtB;AAbA;AACA;AAEE,uBAAK,WAAY;AAAA,EACnB;AAAA,EACA,QAAQ;AACN,QAAI,CAAC,YAAY,mBAAK,IAAG;AAAG;AAC5B,0BAAK,gBAAL;AAAA,EACF;AAAA,EACA,OAAO;AACL,QAAI,SAAS,mBAAK,IAAG;AAAG,aAAO,qBAAqB,mBAAK,IAAG;AAC5D,uBAAK,KAAM;AAAA,EACb;AAQF;AApBE;AACA;AAYA;AAAA,UAAK,WAAG;AACN,qBAAK,KAAM,OAAO,sBAAsB,MAAM;AAC5C,QAAI,YAAY,mBAAK,IAAG;AAAG;AAC3B,uBAAK,WAAL;AACA,0BAAK,gBAAL;AAAA,EACF,CAAC;AACH;",
+  "names": []
+}
