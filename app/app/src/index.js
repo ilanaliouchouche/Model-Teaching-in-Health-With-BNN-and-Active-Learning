@@ -11,12 +11,13 @@ import {
   imageDisplay,
   select,
   genericChart,
-  text
+  text,
 } from '@marcellejs/core';
 
 const input = imageUpload({
-  title: "Upload images"
+  title: "📤 Upload your images"
 });
+input.title = "";
 
 const store = dataStore('localStorage');
 const imageDataset = dataset('UploadedImages', store);
@@ -34,6 +35,7 @@ const $instances = input.$images
 $instances.subscribe(imageDataset.create);
 
 const imageDatasetBrowser = datasetBrowser(imageDataset);
+imageDatasetBrowser.title = "🗂️ Images Dataset";
 
 const thresholdSlider = slider({
   values: [0.3],
@@ -41,48 +43,56 @@ const thresholdSlider = slider({
   max: 0.7,
   step: 0.05,
 });
-
+thresholdSlider.title = "🎯 Uncertainty Threshold";
 
 const t1 = text(`
   <ol>
-    <li><strong>Upload images, tune the uncertainty threshold and click on "Analyze" to filter out images with high uncertainty (variance)</strong></li>
+    📤 <strong>Upload images, set the uncertainty threshold, and click "Analyze" to filter images with high uncertainty</strong>
   </ol>
 `);
+t1.title = "🔍 Step 1";
 
 const t2 = text(`
   <ol start="2">
-    <li><strong>Select a label and validate your choice</strong></li>
+    🏷️ <strong>Select a label for the image and validate your choice</strong>
   </ol>
 `);
+t2.title = "✅ Step 2";
 
 const labelSelect = select(['Positive', 'Negative'], 'Positive');
+labelSelect.title = "";
 
 const firstImageStream = createStream(null);
 const imageDisplayComponent = imageDisplay(firstImageStream);
+imageDisplayComponent.title = "🖼️ Image Preview";
 
-const chartDataStream = createStream({ labels: [], datasets: [{ label: "Variance", data: [] }] });
 const chartComponent = genericChart({ preset: 'bar' });
-chartComponent.title = "Variance of Uncertainties";
-chartComponent.addSeries(chartDataStream, "Variance");
+chartComponent.title = "📊 Uncertainty Variance";
 
-function updateChartData(images) {
-  if (!images || images.length === 0) {
-    chartDataStream.set({ labels: [], datasets: [{ label: "Variance", data: [] }] });
-    console.log("📉 No data to display in the chart");
+const uncertaintyMap = new Map();
+const chartData = createStream([]);
+
+chartComponent.addSeries(chartData, "Variance", { backgroundColor: 'blue' });
+
+async function createChartDataset() {
+  const datasetContent = await imageDataset.find({ query: {} }).catch(() => null);
+  const images = datasetContent ? datasetContent.data : [];
+
+  if (!images.length) {
+    chartData.set([]);
+    console.log("📉 No data for chart.");
     return;
   }
 
-  const labels = images.map(img => String(img.id));
-  const values = images.map(img => img.uncertainty || 0);
+  const updatedData = images
+    .filter(img => uncertaintyMap.has(img.id))
+    .map(img => ({
+      x: String(img.id),
+      y: uncertaintyMap.get(img.id) || 0,
+    }));
 
-  console.log("📊 Updating chart with:", labels, values);
-
-  chartDataStream.set({
-    labels: labels,
-    datasets: [{ label: "Variance", data: values }]
-  });
-
-  chartComponent.updateView();
+  console.log("📊 Updating chart with data:", updatedData);
+  chartData.set(updatedData);
 }
 
 function base64ToBlob(base64, mimeType) {
@@ -111,13 +121,13 @@ async function base64ToImageData(base64) {
   });
 }
 
-const analyzeButton = button('Analyze');
+const analyzeButton = button('🔍 Analyze')
+analyzeButton.title = "";
 analyzeButton.$click.subscribe(async () => {
   console.log("📤 Fetching images from dataset...");
-  
   let images = await imageDataset.items().toArray().catch(() => []);
 
-  if (!Array.isArray(images) || images.length === 0) {
+  if (!images.length) {
     console.warn("⚠️ No images uploaded.");
     return;
   }
@@ -141,11 +151,15 @@ analyzeButton.$click.subscribe(async () => {
     const threshold = thresholdSlider.$values.get()[0];
     console.log(`⚙️ Filtering images with uncertainty > ${threshold}`);
 
-    const filteredImages = images.map((image, index) => ({
-      ...image,
-      id: image.id || `img_${index}`,
-      uncertainty: result.predictions[index]?.uncertainty || 0,
-    }));
+    const filteredImages = images.map((image, index) => {
+      const uncertainty = result.predictions[index]?.uncertainty || 0;
+      uncertaintyMap.set(image.id, uncertainty);
+      return {
+        ...image,
+        id: image.id || `img_${index}`,
+        uncertainty,
+      };
+    });
 
     const imagesToRemove = filteredImages.filter(img => img.uncertainty <= threshold);
     await Promise.all(imagesToRemove.map(img => imageDataset.remove(img.id)));
@@ -153,9 +167,10 @@ analyzeButton.$click.subscribe(async () => {
     const remainingImages = filteredImages.filter(img => img.uncertainty > threshold);
     console.log(`✅ ${remainingImages.length} images retained after filtering`);
 
-    updateChartData(remainingImages);
+    createChartDataset();
 
     if (remainingImages.length > 0) {
+      console.log("🖼️ Converting first image to ImageData:", remainingImages[0].thumbnail);
       const imageData = await base64ToImageData(remainingImages[0].thumbnail);
       firstImageStream.set(imageData);
     } else {
@@ -166,12 +181,13 @@ analyzeButton.$click.subscribe(async () => {
   }
 });
 
-const validateButton = button('Validate');
+const validateButton = button('✅ Validate');
+validateButton.title = "";
 validateButton.$click.subscribe(async () => {
   let datasetContent = await imageDataset.find({ query: {} }).catch(() => null);
   let images = datasetContent ? datasetContent.data : [];
 
-  if (!Array.isArray(images) || images.length === 0) {
+  if (!images.length) {
     console.warn("⚠️ No more images to display.");
     firstImageStream.set(null);
     return;
@@ -184,17 +200,22 @@ validateButton.$click.subscribe(async () => {
 
   try {
     await imageDataset.remove(currentImage.id);
+    uncertaintyMap.delete(currentImage.id);
     console.log(`🗑️ Image removed: ${currentImage.id}`);
   } catch (error) {
     console.warn(`⚠️ Error removing image: ${error.message}`);
   }
 
+  const updatedChartData = chartData.get()
+    .filter(d => d.x !== currentImage.id);
+
+  chartData.set(updatedChartData);
+
   datasetContent = await imageDataset.find({ query: {} }).catch(() => null);
   images = datasetContent ? datasetContent.data : [];
 
-  updateChartData(images);
-
-  if (images.length > 0) {
+  if (images.length) {
+    console.log("🖼️ Converting next image to ImageData:", images[0].thumbnail);
     const imageData = await base64ToImageData(images[0].thumbnail);
     firstImageStream.set(imageData);
   } else {
@@ -204,11 +225,11 @@ validateButton.$click.subscribe(async () => {
 });
 
 const dash = dashboard({
-  title: 'Easy Active Learning',
+  title: '⚕️ Easy Active Learning',
   author: 'Ilan Aliouchouche',
 });
 
-dash.page('Machine Teaching')
+dash.page('👩‍🏫 Machine Teaching')
   .sidebar(input, t2, labelSelect, validateButton, imageDisplayComponent)
   .use(t1, imageDatasetBrowser, thresholdSlider, analyzeButton, chartComponent);
 
