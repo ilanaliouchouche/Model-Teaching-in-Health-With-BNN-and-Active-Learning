@@ -1,10 +1,13 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import torch
 from io import BytesIO
 from PIL import Image
 from ml.train_model import transform_image, BNN_ResNet
+import os
+
+SAVE_PATH = "data/new_data"
 
 app = FastAPI()
 
@@ -53,6 +56,18 @@ async def active_learning(images: List[UploadFile] = File(...)):
             for prob, var in zip(mean_probabilities, uncertainties)
         ]
     }
+
+@app.post("/save_image")
+async def save_image(file: UploadFile = File(...), label: str = Form(...)):
+
+    folder_path = os.path.join(SAVE_PATH, label)
+    os.makedirs(folder_path, exist_ok=True)
+    file_path = os.path.join(folder_path, file.filename)
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+    
+    return {"message": f"Image saved in {file_path}"}
+
 
 if __name__ == "__main__":
     import uvicorn

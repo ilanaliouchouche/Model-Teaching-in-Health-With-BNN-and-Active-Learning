@@ -19,7 +19,7 @@ const input = imageUpload({
 });
 input.title = "";
 
-const store = dataStore('localStorage');
+const store = dataStore('memory');
 const imageDataset = dataset('UploadedImages', store);
 
 const $instances = input.$images
@@ -46,18 +46,18 @@ const thresholdSlider = slider({
 thresholdSlider.title = "🎯 Uncertainty Threshold";
 
 const t1 = text(`
-  <ol>
-    📤 <strong>Upload images, set the uncertainty threshold, and click "Analyze" to filter images with high uncertainty</strong>
-  </ol>
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    📤 Upload images, set the uncertainty threshold, and click "Analyze" to filter images with high uncertainty
+  </div>
 `);
-t1.title = "🔍 Step 1";
+t1.title = " 1️⃣ Step 1";
 
 const t2 = text(`
-  <ol start="2">
-    🏷️ <strong>Select a label for the image and validate your choice</strong>
-  </ol>
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    🏷️ Select a label for the image and validate your choice
+  </div>
 `);
-t2.title = "✅ Step 2";
+t2.title = "2️⃣ Step 2";
 
 const labelSelect = select(['Positive', 'Negative'], 'Positive');
 labelSelect.title = "";
@@ -67,7 +67,30 @@ const imageDisplayComponent = imageDisplay(firstImageStream);
 imageDisplayComponent.title = "🖼️ Image Preview";
 
 const chartComponent = genericChart({ preset: 'bar' });
-chartComponent.title = "📊 Uncertainty Variance";
+chartComponent.title = "📊 Uncertainty/Variance";
+chartComponent.options = {
+  scales: {
+    x: {
+      ticks: {
+        display: false,
+      },
+    },
+    y: {
+      title: {
+        display: false,
+      },
+    },
+  },
+  animation: {
+    duration: 2000,
+    easing: "easeOutBounce",
+  },
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+};
 
 const uncertaintyMap = new Map();
 const chartData = createStream([]);
@@ -186,6 +209,7 @@ validateButton.title = "";
 validateButton.$click.subscribe(async () => {
   let datasetContent = await imageDataset.find({ query: {} }).catch(() => null);
   let images = datasetContent ? datasetContent.data : [];
+  console.log(images);
 
   if (!images.length) {
     console.warn("⚠️ No more images to display.");
@@ -195,8 +219,31 @@ validateButton.$click.subscribe(async () => {
 
   const currentImage = images[0];
   const selectedLabel = labelSelect.$value.get();
+  const labelFolder = selectedLabel === "Positive" ? "1" : "0";
+
+  console.log(images[0]);
 
   console.log(`✅ Image labeled: ${selectedLabel}`);
+
+
+  try {
+    const blob = base64ToBlob(currentImage.thumbnail, "image/png");
+    const formData = new FormData();
+    formData.append("file", blob, `image_${Date.now()}.png`);
+    formData.append("label", labelFolder);
+  
+    const response = await fetch("http://localhost:8000/save_image", {
+      method: "POST",
+      body: formData,
+    });
+  
+    if (!response.ok) {
+      throw new Error(`Erreur lors de l'envoi de l'image: ${response.statusText}`);
+    }
+    console.log(`📤 Image envoyée avec succès vers /data/new_data/${labelFolder}/`);
+  } catch (error) {
+    console.warn(`⚠️ Error processing image: ${error.message}`);
+  }
 
   try {
     await imageDataset.remove(currentImage.id);
