@@ -48,7 +48,7 @@ async def active_learning(images: List[UploadFile] = File(...)):
     probabilities_class_1 = mc_outputs[:, :, 1]  # (MC_SAMPLES, batch_size)
 
     mean_probabilities = probabilities_class_1.mean(dim=0).tolist()
-    uncertainties = probabilities_class_1.std(dim=0).tolist()
+    uncertainties = probabilities_class_1.var(dim=0).tolist()
 
     return {
         "predictions": [

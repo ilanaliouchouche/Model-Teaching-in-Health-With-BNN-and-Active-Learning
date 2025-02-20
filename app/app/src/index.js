@@ -38,9 +38,9 @@ const imageDatasetBrowser = datasetBrowser(imageDataset);
 imageDatasetBrowser.title = "🗂️ Images Dataset";
 
 const thresholdSlider = slider({
-  values: [0.3],
+  values: [0.1],
   min: 0.0,
-  max: 0.7,
+  max: 0.5,
   step: 0.05,
 });
 thresholdSlider.title = "🎯 Uncertainty Threshold";
@@ -58,6 +58,14 @@ const t2 = text(`
   </div>
 `);
 t2.title = "2️⃣ Step 2";
+
+const probabilityVarianceText = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    🔢 Probability: <span style="color: #007bff; font-size: 18px;" id="probability-value">-</span><br>
+    📊 Variance: <span style="color: #dc3545; font-size: 18px;" id="variance-value">-</span>
+  </div>
+`);
+probabilityVarianceText.title = "📈 Prediction Details";
 
 const labelSelect = select(['Positive', 'Negative'], 'Positive');
 labelSelect.title = "";
@@ -92,6 +100,7 @@ chartComponent.options = {
   },
 };
 
+const probabilityMap = new Map();
 const uncertaintyMap = new Map();
 const chartData = createStream([]);
 
@@ -116,6 +125,14 @@ async function createChartDataset() {
 
   console.log("📊 Updating chart with data:", updatedData);
   chartData.set(updatedData);
+}
+
+function updateProbabilityVariance(imageId) {
+  let probability = probabilityMap.get(imageId) || 0;
+  const variance = uncertaintyMap.get(imageId) || 0;
+  probability = probability > 0.5 ? probability : 1 - probability;
+  document.getElementById("probability-value").textContent = probability.toFixed(2);
+  document.getElementById("variance-value").textContent = variance.toFixed(2);
 }
 
 function base64ToBlob(base64, mimeType) {
@@ -176,11 +193,14 @@ analyzeButton.$click.subscribe(async () => {
 
     const filteredImages = images.map((image, index) => {
       const uncertainty = result.predictions[index]?.uncertainty || 0;
+      const probability = result.predictions[index]?.probability_class_1 || 0;
       uncertaintyMap.set(image.id, uncertainty);
+      probabilityMap.set(image.id, probability);
       return {
         ...image,
         id: image.id || `img_${index}`,
         uncertainty,
+        probability,
       };
     });
 
@@ -196,6 +216,7 @@ analyzeButton.$click.subscribe(async () => {
       console.log("🖼️ Converting first image to ImageData:", remainingImages[0].thumbnail);
       const imageData = await base64ToImageData(remainingImages[0].thumbnail);
       firstImageStream.set(imageData);
+      updateProbabilityVariance(remainingImages[0].id);
     } else {
       firstImageStream.set(null);
     }
@@ -248,6 +269,7 @@ validateButton.$click.subscribe(async () => {
   try {
     await imageDataset.remove(currentImage.id);
     uncertaintyMap.delete(currentImage.id);
+    probabilityMap.delete(currentImage.id);
     console.log(`🗑️ Image removed: ${currentImage.id}`);
   } catch (error) {
     console.warn(`⚠️ Error removing image: ${error.message}`);
@@ -265,6 +287,7 @@ validateButton.$click.subscribe(async () => {
     console.log("🖼️ Converting next image to ImageData:", images[0].thumbnail);
     const imageData = await base64ToImageData(images[0].thumbnail);
     firstImageStream.set(imageData);
+    updateProbabilityVariance(images[0].id);
   } else {
     console.warn("⚠️ No more images to display.");
     firstImageStream.set(null);
@@ -277,7 +300,7 @@ const dash = dashboard({
 });
 
 dash.page('👩‍🏫 Machine Teaching')
-  .sidebar(input, t2, labelSelect, validateButton, imageDisplayComponent)
+  .sidebar(input, t2, labelSelect, validateButton, probabilityVarianceText, imageDisplayComponent)
   .use(t1, imageDatasetBrowser, thresholdSlider, analyzeButton, chartComponent);
 
 dash.settings.datasets(imageDataset);
