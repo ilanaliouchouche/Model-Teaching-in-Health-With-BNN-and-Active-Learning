@@ -262,3 +262,6 @@ build
 data/
 
 *.ipynb
+
+
+.DS_Store
