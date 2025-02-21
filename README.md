@@ -1,6 +1,6 @@
 # Model Teaching in Health With BNN and Active Learning
 
-This project aims to integrate domain knowledge with deep learning through an intuitive interface designed for medical professionals. It leverages the [IML Marcelle](https://marcelle.dev/) package, developed by researchers at LISN, to create a user-friendly experience.
+This project aims to integrate domain knowledge with deep learning through an intuitive interface designed for medical professionals. It leverages the [Marcelle](https://marcelle.dev/) package, developed by researchers at LISN, to create a user-friendly experience.
 
 ## Technologies Used
 
