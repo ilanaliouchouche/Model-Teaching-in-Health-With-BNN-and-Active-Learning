@@ -183,7 +183,7 @@ def train_bnn(
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            best_checkpoint = os.path.join(CHECKPOINT_DIR, f"ckpt_best_{timestamp}.pth")
+            best_checkpoint = os.path.join(CHECKPOINT_DIR, f"ckpt_best_tmp.pth")
             torch.save(model.state_dict(), best_checkpoint)
 
         print(f"Epoch {epoch+1}: Train Loss = {avg_train_loss:.4f}, Validation Loss = {avg_val_loss:.4f}, Accuracy = {accuracy:.2f}%, F1 = {f1:.4f}, MCC = {mcc:.4f}, Precision = {precision:.4f}, Recall = {recall:.4f}, Mean Uncertainty = {mean_std:.4f}")

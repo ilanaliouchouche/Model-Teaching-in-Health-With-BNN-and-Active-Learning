@@ -59,8 +59,18 @@ const t2 = text(`
 `);
 t2.title = "2️⃣ Step 2";
 
+const uncertaintyExplanationText = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    🤖 The model makes multiple predictions with random variations.<br>
+    <strong>Uncertainty (Variance) measures how much these predictions differ</strong><br>
+    <span style="color: #dc3545;">higher uncertainty means the model is less confident.</span>
+  </div>
+`);
+uncertaintyExplanationText.title = "🔍 Understanding Uncertainty";
+
 const probabilityVarianceText = text(`
   <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    🎯 Prediction: <span style="color: #adb5bd; font-size: 18px;" id="prediction">-</span><br>
     🔢 Probability: <span style="color: #007bff; font-size: 18px;" id="probability-value">-</span><br>
     📊 Variance: <span style="color: #dc3545; font-size: 18px;" id="variance-value">-</span>
   </div>
@@ -104,7 +114,7 @@ const probabilityMap = new Map();
 const uncertaintyMap = new Map();
 const chartData = createStream([]);
 
-chartComponent.addSeries(chartData, "Variance", { backgroundColor: 'blue' });
+chartComponent.addSeries(chartData, "Variance");
 
 async function createChartDataset() {
   const datasetContent = await imageDataset.find({ query: {} }).catch(() => null);
@@ -130,7 +140,9 @@ async function createChartDataset() {
 function updateProbabilityVariance(imageId) {
   let probability = probabilityMap.get(imageId) || 0;
   const variance = uncertaintyMap.get(imageId) || 0;
+  const prediction = probability > 0.5 ? "Positive" : "Negative";
   probability = probability > 0.5 ? probability : 1 - probability;
+  document.getElementById("prediction").textContent = prediction;
   document.getElementById("probability-value").textContent = probability.toFixed(2);
   document.getElementById("variance-value").textContent = variance.toFixed(2);
 }
@@ -294,14 +306,400 @@ validateButton.$click.subscribe(async () => {
   }
 });
 
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+
+const reportInfoText = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    📊 <strong>Model Performance Dashboard</strong><br><br>
+    These visualizations helps assess how well the model is improving over time.<br><br>
+    🔍 <strong>Key Metrics Explained:</strong><br>
+    - <strong>Accuracy:</strong> Measures how many total images were correctly classified.<br>
+    - <strong>Precision:</strong> Out of all predicted pneumonia cases, how many were actually pneumonia.<br>
+    - <strong>Recall:</strong> Out of all actual pneumonia cases, how many were correctly detected.<br><br>
+    📑 (2min) You can check out
+    <a href="https://polukhin.tech/2022/11/26/classification-metrics-visual-explanations" target="_blank" style="color: #007bff; text-decoration: none;">
+      this explanation</a>.
+  </div>
+`);
+reportInfoText.title = "ℹ️ Model Performance Overview";
+
+const metricsInstructions = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    <strong>🏷️ Select a model version to display the respective metrics</strong>
+  </div>
+`);
+metricsInstructions.title = "";
+
+const classDistributionData = createStream([]);
+const accuracyData = createStream([]);
+const varianceData = createStream([]);
+
+const classDistributionChart = genericChart({ preset: 'bar' });
+classDistributionChart.title = "🔢 Test set Class Distribution";
+classDistributionChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Class" },
+      ticks: { autoSkip: false },
+    },
+    y: {
+      title: { display: true, text: "Count" },
+    },
+  },
+  animation: {
+    duration: 1000,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+classDistributionChart.addSeries(classDistributionData, "Count");
+
+const accuracyChart = genericChart({ preset: 'line' });
+accuracyChart.title = "📈 Accuracy Evolution";
+accuracyChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Version" },
+      ticks: { autoSkip: true },
+    },
+    y: {
+      title: { display: true, text: "Accuracy" },
+    },
+  },
+  animation: {
+    duration: 1000,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+accuracyChart.addSeries(accuracyData, "Accuracy");
+
+const precisionChart = genericChart({ preset: 'line' });
+precisionChart.title = "📈 Precision Evolution";
+precisionChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Version" },
+      ticks: { autoSkip: true },
+    },
+    y: {
+      title: { display: true, text: "Precision" },
+    },
+  },
+  animation: {
+    duration: 1000,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+const varianceChart = genericChart({ preset: 'line' });
+varianceChart.title = "📊 Uncertainty/Variance Evolution";
+varianceChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Version" },
+      ticks: { autoSkip: true },
+    },
+    y: {
+      title: { display: true, text: "Variance" },
+    },
+  },
+  animation: {
+    duration: 1000,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+varianceChart.addSeries(varianceData, "Variance");
+
+const stepSlider = slider({
+  values: [1],
+  min: 1,
+  max: 10,
+  step: 1,
+});
+stepSlider.title = "🔄 Model Version";
+
+const metricsData = createStream([]);
+
+const metricsChart = genericChart({ preset: 'bar' });
+metricsChart.title = "📊 Model Metrics (Precision, Recall, F1 Score)";
+metricsChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Metric" },
+    },
+    y: {
+      title: { display: true, text: "Score" },
+    },
+  },
+  animation: {
+    duration: 500,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+metricsChart.addSeries(metricsData, "Score");
+
+function updateMetricsChart(result) {
+  const stepIndex = stepSlider.$values.get()[0];
+
+  if (result.precision && result.recall && result.f1) {
+    const updatedMetrics = [
+      { x: "Precision", y: result.precision[stepIndex - 1] },
+      { x: "Recall", y: result.recall[stepIndex - 1] },
+      { x: "F1 Score", y: result.f1[stepIndex - 1] },
+    ];
+    metricsData.set(updatedMetrics);
+  }
+}
+
+stepSlider.$values.set([2]);
+stepSlider.$max.set(3);
+
+async function fetchResults() {
+  try {
+    const response = await fetch("http://localhost:8000/get_results");
+    if (!response.ok) throw new Error("Error fetching results");
+
+    const result = await response.json();
+
+    if (result) {
+      if (result.accuracy) {
+        const updatedAccuracy = result.accuracy.map((value, index) => ({ x: index + 1, y: value }));
+        accuracyData.set(updatedAccuracy);
+
+        console.log(result.accuracy.length);
+        const newMax = result.accuracy.length;
+        if (newMax !== stepSlider.$max.get()) {
+          stepSlider.$max.set(newMax);
+          stepSlider.$values.set([newMax]);
+        }
+      }
+      if (result.variance) {
+        const updatedVariance = result.variance.map((value, index) => ({ x: index + 1, y: value }));
+        varianceData.set(updatedVariance);
+      }
+      classDistributionData.set([
+        { x: "Positive", y: result.n_positives },
+        { x: "Negative", y: result.n_negatives }
+      ]);
+      updateMetricsChart(result);
+    }
+  } catch (error) {
+    console.error("Error fetching results:", error);
+  }
+}
+
+stepSlider.$values.subscribe(() => {
+  fetchResults();
+});
+
+setInterval(fetchResults, 1000);
+
+//---------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------
+
+
+const trainingInfoText = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    📢 <strong>Model Update Instructions</strong><br><br>
+    This page allows you to update the model once enough labeled data has been collected.<br><br>
+    ⚠️ <strong>Threshold Guidelines, Let’s avoid pollution :</strong><br>
+    - 🔴 <strong>Below 50 samples</strong>: <span style="color: #dc3545;">Highly discouraged</span><br>
+    - 🟠 <strong>Between 50 and 70 samples</strong>: <span style="color: #ffc107;">Possible but not recommended</span><br>
+    - 🟢 <strong>Above 70 samples</strong>: <span style="color: #28a745;">Safe to train</span><br><br>
+    When ready, click <strong>"Update the Model"</strong> to start training. TensorBoard will provide real-time updates.
+  </div>
+`);
+trainingInfoText.title = "ℹ️ Training Guidelines";
+
+const newDataStream = createStream([]);
+
+const newDataChart = genericChart({ preset: 'bar' });
+newDataChart.title = "📊 Data labeled by the Oracle";
+newDataChart.options = {
+  scales: {
+    x: {
+      title: { display: true, text: "Class" },
+      ticks: { autoSkip: false },
+    },
+    y: {
+      title: { display: true, text: "Count" },
+    },
+  },
+  animation: {
+    duration: 500,
+    easing: "easeInOutCubic",
+  },
+  plugins: {
+    legend: { display: false },
+  },
+};
+newDataChart.addSeries(newDataStream, "Count");
+
+const newDataText = text(`
+  <div style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+    🟢 Positive Images: <span id="positive-count" style="font-size: 18px; font-weight: bold;">0</span><span id="positive-total" style="font-size: 18px; font-weight: bold;">/70</span><br>
+    🔴 Negative Images: <span id="negative-count" style="font-size: 18px; font-weight: bold;">0</span><span id="negative-total" style="font-size: 18px; font-weight: bold;">/70</span>
+  </div>
+`);
+newDataText.title = "📊 Data labeled by the Oracle";
+
+function updateNewDataText(nPositives, nNegatives) {
+  const posElement = document.getElementById("positive-count");
+  const posTotalElement = document.getElementById("positive-total");
+  const negElement = document.getElementById("negative-count");
+  const negTotalElement = document.getElementById("negative-total");
+
+  if (posElement && posTotalElement && negElement && negTotalElement) {
+    posElement.textContent = nPositives;
+    negElement.textContent = nNegatives;
+
+    let posColor = nPositives < 50 ? "#dc3545" : nPositives < 70 ? "#ffc107" : "#28a745";
+    let negColor = nNegatives < 50 ? "#dc3545" : nNegatives < 70 ? "#ffc107" : "#28a745";
+
+    posElement.style.color = posColor;
+    posTotalElement.style.color = posColor;
+
+    negElement.style.color = negColor;
+    negTotalElement.style.color = negColor;
+  }
+}
+
+async function fetchNewData() {
+  try {
+    const response = await fetch("http://localhost:8000/get_n_new_data");
+    if (!response.ok) throw new Error("Error fetching new labeled data");
+
+    const result = await response.json();
+
+    if (result) {
+      newDataStream.set([
+        { x: "Positive", y: result.n_positives },
+        { x: "Negative", y: result.n_negatives }
+      ]);
+      updateNewDataText(result.n_positives, result.n_negatives);
+    }
+  } catch (error) {
+    console.error("Error fetching new labeled data:", error);
+  }
+}
+
+setInterval(fetchNewData, 1000);
+
+const updateModelButton = button('⚠️ Update the Model');
+updateModelButton.$type.set('danger');
+updateModelButton.$disabled.set(false);
+updateModelButton.title = "";
+
+const tensorboardText = text(`
+  <div id="tensorboard-container" style="text-align: center; padding: 10px; font-size: 16px; font-weight: bold; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd; display: none;">
+    📊 <strong>TensorBoard Running...</strong><br>
+    <iframe id="tensorboard-frame" src="" width="100%" height="500px" style="border-radius: 8px; border: 1px solid #ddd;"></iframe>
+  </div>
+`);
+tensorboardText.title = "📡 Model Training Progress";
+
+updateModelButton.$click.subscribe(async () => {
+  updateModelButton.$disabled.set(true);
+
+  try {
+    const response = await fetch("http://localhost:8000/ask_training", {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error("Error starting training process");
+    }
+
+    console.log("✅ Training started!");
+
+    setTimeout(() => {
+      document.getElementById("tensorboard-container").style.display = "block";
+      document.getElementById("tensorboard-frame").src = "http://localhost:6006/";
+    }, 3000);
+  } catch (error) {
+    console.error("❌ Error launching training:", error);
+  }
+});
+
+
+//---------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------
+
+const homePageText = text(`
+  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; font-size: 20px; font-weight: bold;">
+    <img src="saclay.png" alt="Université Paris Saclay" style="position: absolute; top: 20px; right: 20px; width: 150px;">
+    <h1 style="font-size: 36px; margin-bottom: 20px;">BNN Teaching through Active Learning Interface</h1>
+    <p style="font-size: 20px;">Ilan ALIOUCHOUCHE • Feddy IMMOULA • Nadja ZIVKOVIC</p>
+    <p style="font-size: 18px; margin-top: 10px;">Université Paris Saclay</p>
+    <a href="https://github.com/ilanaliouchouche/Model-Teaching-in-Health-With-BNN-and-Active-Learning" target="_blank" style="margin-top: 30px;">
+      <img src="github.webp" alt="GitHub Repository" style="width: 80px;">
+    </a>
+  </div>
+`);
+homePageText.title = "🏠 Home";
+
+
+const contactInfoText = text(`
+  <div style="text-align: left; padding: 10px; font-size: 16px; font-weight: bold;">
+    📩 <strong>Any questions or inquiries?</strong><br>
+    Contact us at:<br>
+    📧 <a href="mailto:ilan.aliouchouche@universite-paris-saclay.fr?subject=Active Learning Interface Project&body=Hi, I am contacting you because I have a question related to your Active Learning Interface Project:" style="color: #007bff; text-decoration: none;">
+      ilan.aliouchouche@universite-paris-saclay.fr
+    </a><br>
+    📧 <a href="mailto:feddy.immoula@universite-paris-saclay.fr?subject=Active Learning Interface Project&body=Hi, I am contacting you because I have a question related to your Active Learning Interface Project:" style="color: #007bff; text-decoration: none;">
+      feddy.immoula@universite-paris-saclay.fr
+    </a>
+  </div>
+`);
+contactInfoText.title = "📧 Contact";
+
+
+const githubInfoText = text(`
+  <div style="text-align: left; padding: 10px; font-size: 16px; font-weight: bold;">
+    🐙 <a href="https://github.com/ilanaliouchouche" target="_blank" style="color: #007bff; text-decoration: none;">
+      github.com/ilanaliouchouche
+    </a><br>
+    🐙 <a href="https://github.com/feddy321" target="_blank" style="color: #007bff; text-decoration: none;">
+      github.com/feddy321
+    </a>
+  </div>
+`);
+githubInfoText.title = "🐙 Gitub";
+
 const dash = dashboard({
   title: '⚕️ Easy Active Learning',
   author: 'Ilan Aliouchouche',
 });
 
+dash.page('🏠 Home')
+  .sidebar(contactInfoText, githubInfoText)
+  .use(homePageText);
+
 dash.page('👩‍🏫 Machine Teaching')
   .sidebar(input, t2, labelSelect, validateButton, probabilityVarianceText, imageDisplayComponent)
-  .use(t1, imageDatasetBrowser, thresholdSlider, analyzeButton, chartComponent);
+  .use(t1, imageDatasetBrowser, thresholdSlider, analyzeButton, uncertaintyExplanationText, chartComponent);
+
+dash.page('📚 Training')
+  .sidebar(newDataText, newDataChart)
+  .use(trainingInfoText, updateModelButton, tensorboardText);
+
+dash.page('📈 Report')
+  .sidebar(classDistributionChart, metricsInstructions, stepSlider, metricsChart)
+  .use(reportInfoText, accuracyChart, varianceChart);
 
 dash.settings.datasets(imageDataset);
 
