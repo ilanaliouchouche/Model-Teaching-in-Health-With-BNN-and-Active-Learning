@@ -663,6 +663,9 @@ const contactInfoText = text(`
     📧 <a href="mailto:feddy.immoula@universite-paris-saclay.fr?subject=Active Learning Interface Project&body=Hi, I am contacting you because I have a question related to your Active Learning Interface Project:" style="color: #007bff; text-decoration: none;">
       feddy.immoula@universite-paris-saclay.fr
     </a>
+    <br>
+    📧 <a href="mailto:zivkovicnadja22@gmail.com?subject=Active Learning Interface Project&body=Hi, I am contacting you because I have a question related to your Active Learning Interface Project:" style="color: #007bff; text-decoration: none;">
+    zivkovicnadja22@gmail.com
   </div>
 `);
 contactInfoText.title = "📧 Contact";
