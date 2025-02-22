@@ -670,7 +670,6 @@ const contactInfoText = text(`
 `);
 contactInfoText.title = "📧 Contact";
 
-
 const githubInfoText = text(`
   <div style="text-align: left; padding: 10px; font-size: 16px; font-weight: bold;">
     🐙 <a href="https://github.com/ilanaliouchouche" target="_blank" style="color: #007bff; text-decoration: none;">
@@ -678,7 +677,9 @@ const githubInfoText = text(`
     </a><br>
     🐙 <a href="https://github.com/feddy321" target="_blank" style="color: #007bff; text-decoration: none;">
       github.com/feddy321
-    </a>
+    </a><br>
+    🐙 <a href="https://github.com/nadjazivkovic03" target="_blank" style="color: #007bff; text-decoration: none;">
+      github.com/nadjazivkovic03
   </div>
 `);
 githubInfoText.title = "🐙 Gitub";

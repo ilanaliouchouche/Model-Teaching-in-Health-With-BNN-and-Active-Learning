@@ -258,8 +258,9 @@ build
 
 # End of file
 
-#Data 
-data/
+#Data
+*0/
+*1/
 
 *.ipynb
 
