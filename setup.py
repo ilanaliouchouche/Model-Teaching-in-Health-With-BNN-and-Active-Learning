@@ -7,6 +7,7 @@ setup(
     include_package_data=True,
     author='Ilan Aliouchouche',
     install_requires=[
+        'python-multipart',
         'numpy',
         'pandas',
         'matplotlib',
@@ -17,6 +18,8 @@ setup(
         'medmnist',
         'torchbnn',
         'onnx',
+        'onnxruntime',
+        'uvicorn',
         'fastapi'
     ],
     python_requires='>=3.11',
