@@ -70,7 +70,7 @@ python ml/collect_data.py
 python fastapi_app.py
 ```
 
-### Install & Run the Marcelle app (In an other terminal)
+### 5. Install & Run the Marcelle app (In an other terminal)
 
 ```bash
 cd app/app
